@@ -15,24 +15,34 @@ export default function AgentsView() {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSpawnDialogOpen, setIsSpawnDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    task: '',
+    role: 'Secondary' as Agent['role'],
+    branch: ''
+  });
 
   const filteredAgents = agents.filter(agent => 
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     agent.task.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSpawnConfirm = () => {
+  const handleSpawnConfirm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.task) return;
+
     const newAgent: Agent = {
       id: `claude-${agents.length + 1}`,
-      name: `Claude Code (Task ${agents.length + 1})`,
-      role: 'Secondary',
+      name: formData.name,
+      role: formData.role,
       status: 'Idle',
-      task: 'Awaiting assignment...',
-      branch: `feat/new-task-${agents.length + 1}`,
+      task: formData.task,
+      branch: formData.branch || `feat/task-${agents.length + 1}`,
       progress: 0
     };
     setAgents([...agents, newAgent]);
     setIsSpawnDialogOpen(false);
+    setFormData({ name: '', task: '', role: 'Secondary', branch: '' });
   };
 
   return (
@@ -132,7 +142,7 @@ export default function AgentsView() {
         )}
       </div>
 
-      {/* Spawn Confirmation Dialog */}
+      {/* Spawn Agent Dialog */}
       <AnimatePresence>
         {isSpawnDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -140,39 +150,106 @@ export default function AgentsView() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-md overflow-hidden shadow-2xl"
+              className="bg-[#0a0a0a] border border-zinc-800 rounded-xl w-full max-w-lg overflow-hidden shadow-2xl"
             >
-              <div className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 shrink-0">
-                    <Terminal size={24} />
+              <form onSubmit={handleSpawnConfirm}>
+                <div className="p-6 border-b border-zinc-800">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                        <Terminal size={20} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-zinc-100">Spawn New Agent</h3>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => setIsSpawnDialogOpen(false)}
+                      className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-zinc-100">Spawn New Agent</h3>
-                    <p className="text-sm text-zinc-400 mt-2 leading-relaxed">
-                      Are you sure you want to spawn a new parallel agent? This will consume additional compute resources and initialize a new isolated sandbox container.
-                    </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+                        Agent Name
+                      </label>
+                      <input 
+                        type="text"
+                        required
+                        placeholder="e.g., Claude Code (Frontend)"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+                        Primary Task
+                      </label>
+                      <input 
+                        type="text"
+                        required
+                        placeholder="e.g., Implementing dark mode"
+                        value={formData.task}
+                        onChange={(e) => setFormData({ ...formData, task: e.target.value })}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+                          Role
+                        </label>
+                        <select 
+                          value={formData.role}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value as Agent['role'] })}
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none"
+                        >
+                          <option value="Secondary">Secondary</option>
+                          <option value="Primary">Primary</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+                          Git Branch (Optional)
+                        </label>
+                        <input 
+                          type="text"
+                          placeholder="e.g., feat/dark-mode"
+                          value={formData.branch}
+                          onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="bg-zinc-900/50 px-6 py-4 border-t border-zinc-800 flex justify-end gap-3">
-                <button 
-                  onClick={() => setIsSpawnDialogOpen(false)}
-                  className="px-4 py-2 rounded-md text-sm font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleSpawnConfirm}
-                  className="px-4 py-2 rounded-md text-sm font-medium bg-emerald-500 text-zinc-950 hover:bg-emerald-400 transition-colors"
-                >
-                  Confirm Spawn
-                </button>
-              </div>
+
+                <div className="bg-zinc-900/50 px-6 py-4 flex justify-end gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsSpawnDialogOpen(false)}
+                    className="px-4 py-2 rounded-md text-sm font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-4 py-2 rounded-md text-sm font-medium bg-emerald-500 text-zinc-950 hover:bg-emerald-400 transition-colors"
+                  >
+                    Confirm Spawn
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
