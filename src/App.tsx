@@ -5,6 +5,7 @@ import PyramidView from './components/PyramidView';
 import CouncilView from './components/CouncilView';
 import AgentsView from './components/AgentsView';
 import BrainView from './components/BrainView';
+import ArtifactsView from './components/ArtifactsView';
 import { TabID } from './types';
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
               {activeTab === 'council' && <CouncilView />}
               {activeTab === 'agents' && <AgentsView />}
               {activeTab === 'brain' && <BrainView />}
+              {activeTab === 'artifacts' && <ArtifactsView />}
             </motion.div>
           </AnimatePresence>
         </div>

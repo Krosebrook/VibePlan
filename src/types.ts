@@ -1,4 +1,4 @@
-export type TabID = 'dashboard' | 'council' | 'agents' | 'brain';
+export type TabID = 'dashboard' | 'council' | 'agents' | 'brain' | 'artifacts';
 
 export interface Agent {
   id: string;
@@ -17,4 +17,14 @@ export interface CouncilMember {
   bgAccent: string;
   icon: any;
   currentThought: string;
+}
+
+export interface Artifact {
+  id: string;
+  logId: string;
+  authorHandle: string;
+  type: 'Text Fragment' | 'Visual Anomaly';
+  status: 'VERIFIED' | 'CORRUPTED' | 'CONFLICTING_DATA';
+  content: string;
+  timestamp: string;
 }

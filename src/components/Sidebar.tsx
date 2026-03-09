@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { LayoutDashboard, Users, Network, BrainCircuit, Settings, TerminalSquare } from 'lucide-react';
+import { LayoutDashboard, Users, Network, BrainCircuit, Settings, TerminalSquare, Database } from 'lucide-react';
 import { TabID } from '../types';
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     { id: 'council', label: 'AI Council', icon: Users },
     { id: 'agents', label: 'Parallel Agents', icon: Network },
     { id: 'brain', label: 'Project Brain', icon: BrainCircuit },
+    { id: 'artifacts', label: 'Mesh Intercepts', icon: Database },
   ];
 
   return (

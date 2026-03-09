@@ -14,6 +14,7 @@ const initialAgents: Agent[] = [
 export default function AgentsView() {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'default' | 'status'>('default');
   const [isSpawnDialogOpen, setIsSpawnDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -22,10 +23,18 @@ export default function AgentsView() {
     branch: ''
   });
 
-  const filteredAgents = agents.filter(agent => 
-    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agent.task.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAgents = [...agents]
+    .filter(agent => 
+      agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.task.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'status') {
+        const statusOrder = { 'Running': 0, 'Reviewing': 1, 'Blocked': 2, 'Idle': 3 };
+        return statusOrder[a.status] - statusOrder[b.status];
+      }
+      return 0;
+    });
 
   const handleSpawnConfirm = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,24 +75,34 @@ export default function AgentsView() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-        <input 
-          type="text"
-          placeholder="Search agents by name or task..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-lg pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-        />
-        {searchQuery && (
-          <button 
-            onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
-          >
-            <X size={16} />
-          </button>
-        )}
+      {/* Search and Sort Bar */}
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+          <input 
+            type="text"
+            placeholder="Search agents by name or task..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-lg pl-10 pr-10 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        <select 
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as 'default' | 'status')}
+          className="bg-[#0a0a0a] border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-zinc-600 transition-colors appearance-none cursor-pointer min-w-[140px]"
+        >
+          <option value="default">Sort: Default</option>
+          <option value="status">Sort: By Status</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pb-4">
@@ -303,11 +322,20 @@ function StatusBadge({ status }: { status: Agent['status'] }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 5, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full mb-2 right-0 w-48 p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50 pointer-events-none"
+            className="absolute bottom-full mb-2 right-0 w-56 p-3 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50"
           >
-            <p className="text-[11px] leading-relaxed text-zinc-300">
+            <p className="text-[11px] leading-relaxed text-zinc-300 mb-2">
               {info.description}
             </p>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                alert(`Viewing logs for status: ${info.label}`);
+              }}
+              className="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors"
+            >
+              View Status Logs
+            </button>
             {/* Tooltip Arrow */}
             <div className="absolute top-full right-4 -translate-y-1/2 rotate-45 w-2 h-2 bg-zinc-900 border-r border-b border-zinc-800" />
           </motion.div>

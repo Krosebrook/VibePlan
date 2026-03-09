@@ -55,7 +55,15 @@ export default function BrainView() {
 - Use React Context for global theme/auth state.
 - Local state via useState/useReducer for component-specific logic.
 
-## 4. Known Friction Points (DO NOT REPEAT)
+## 4. User-Generated Content (Mesh Intercepts)
+- All UGC must be framed in-universe as "Recovered Logs" or "Data Fragments".
+- Use the Terminal Intake Form for submissions.
+- Text Formatting Rules:
+  - Wrap sensitive lore in \`[REDACTED]\` to render blackout blocks.
+  - Wrap plot holes or invalid data in \`[CORRUPTED_DATA_BLOCK]\` to render blurred/decayed text.
+- Flag conflicting lore with the \`CONFLICTING_DATA\` status for manual review.
+
+## 5. Known Friction Points (DO NOT REPEAT)
 - [2026-02-19] Replit MCP OAuth Failure: 
   - Issue: OAuth for MCPs fails silently in the Replit sandbox.
   - Fix: MUST use bearer tokens for authentication when connecting Linear or other MCPs.
