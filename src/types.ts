@@ -1,4 +1,4 @@
-export type TabID = 'dashboard' | 'council' | 'agents' | 'brain' | 'artifacts';
+export type TabID = 'dashboard' | 'council' | 'agents' | 'brain' | 'artifacts' | 'operative';
 
 export interface Agent {
   id: string;
